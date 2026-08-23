@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>NSI Logo URLs</title>
+
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      margin: 2rem;
+      line-height: 1.5;
+    }
+
+    h1 {
+      margin-bottom: 0.25rem;
+    }
+
+    #status {
+      color: #666;
+      margin-bottom: 1rem;
+    }
+
+    #search {
+      width: 100%;
+      max-width: 40rem;
+      padding: 0.6rem;
+      font-size: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .table-container {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 0.6rem;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      white-space: nowrap;
+    }
+
+    td.url {
+      word-break: break-all;
+    }
+
+    #pagination {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    button {
+      padding: 0.5rem 0.8rem;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>NSI Logo URLs</h1>
+
+  <div id="status">Loading...</div>
+
+  <input
+    id="search"
+    type="search"
+    placeholder="Search Q-ID, source or URL..."
+    autocomplete="off"
+  >
+
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Q-ID</th>
+          <th>Source</th>
+          <th>URL</th>
+        </tr>
+      </thead>
+
+      <tbody id="results"></tbody>
+    </table>
+  </div>
+
+  <div id="pagination">
+    <button id="previous" disabled>Previous</button>
+    <span id="page-info"></span>
+    <button id="next" disabled>Next</button>
+  </div>
+
+  <script>
+    const pageSize = 100;
+
+    let allRows = [];
+    let filteredRows = [];
+    let currentPage = 1;
+
+    const status = document.getElementById("status");
+    const search = document.getElementById("search");
+    const results = document.getElementById("results");
+    const previousButton = document.getElementById("previous");
+    const nextButton = document.getElementById("next");
+    const pageInfo = document.getElementById("page-info");
+
+    function render() {
+      const totalPages = Math.max(
+        1,
+        Math.ceil(filteredRows.length / pageSize)
+      );
+
+      currentPage = Math.min(currentPage, totalPages);
+
+      const start = (currentPage - 1) * pageSize;
+      const pageRows = filteredRows.slice(start, start + pageSize);
+
+      results.replaceChildren();
+
+      for (const row of pageRows) {
+        const tr = document.createElement("tr");
+
+        const qid = document.createElement("td");
+        qid.textContent = row.qid;
+
+        const source = document.createElement("td");
+        source.textContent = row.source;
+
+        const url = document.createElement("td");
+        url.className = "url";
+
+        const link = document.createElement("a");
+        link.href = row.url;
+        link.textContent = row.url;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+
+        url.appendChild(link);
+
+        tr.append(qid, source, url);
+        results.appendChild(tr);
+      }
+
+      const startNumber =
+        filteredRows.length === 0 ? 0 : start + 1;
+
+      const endNumber = Math.min(
+        start + pageSize,
+        filteredRows.length
+      );
+
+      status.textContent =
+        `${filteredRows.length.toLocaleString()} logo URLs found`;
+
+      pageInfo.textContent =
+        `${startNumber.toLocaleString()}–${endNumber.toLocaleString()} of ` +
+        `${filteredRows.length.toLocaleString()} | Page ${currentPage} of ${totalPages}`;
+
+      previousButton.disabled = currentPage <= 1;
+      nextButton.disabled = currentPage >= totalPages;
+    }
+
+    function filterRows() {
+      const query = search.value.trim().toLowerCase();
+
+      currentPage = 1;
+
+      if (!query) {
+        filteredRows = allRows;
+      } else {
+        filteredRows = allRows.filter((row) =>
+          row.qid.toLowerCase().includes(query) ||
+          row.source.toLowerCase().includes(query) ||
+          row.url.toLowerCase().includes(query)
+        );
+      }
+
+      render();
+    }
+
+    previousButton.addEventListener("click", () => {
+      if (currentPage > 1) {
+        currentPage--;
+        render();
+      }
+    });
+
+    nextButton.addEventListener("click", () => {
+      const totalPages = Math.ceil(
+        filteredRows.length / pageSize
+      );
+
+      if (currentPage < totalPages) {
+        currentPage++;
+        render();
+      }
+    });
+
+    search.addEventListener("input", filterRows);
+
+    async function loadData() {
+      try {
+        const response = await fetch("nsi-logos.json");
+
+        if (!response.ok) {
+          throw new Error(
+            `Failed to load nsi-logos.json: ${response.status}`
+          );
+        }
+
+        const data = await response.json();
+
+        for (const [qid, sources] of Object.entries(data)) {
+          for (const [source, url] of Object.entries(sources)) {
+            allRows.push({
+              qid,
+              source,
+              url
+            });
+          }
+        }
+
+        allRows.sort((a, b) => {
+          return a.qid.localeCompare(b.qid);
+        });
+
+        filteredRows = allRows;
+
+        render();
+      } catch (error) {
+        console.error(error);
+
+        status.textContent =
+          `Error loading logo URLs: ${error.message}`;
+      }
+    }
+
+    loadData();
+  </script>
+
+</body>
+</html>
