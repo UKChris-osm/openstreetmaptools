@@ -24,9 +24,9 @@ jobs:
       - name: Show Bun version
         run: bun --version
 
-      - name: Extract logo URLs
+      - name: Fetch logo URLs
         working-directory: NSI
-        run: bun run extract-logos.ts
+        run: bun run fetch-nsi-logos.ts
 
       - name: Commit changes
         working-directory: NSI
