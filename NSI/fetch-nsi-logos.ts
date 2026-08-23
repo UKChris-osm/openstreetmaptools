@@ -1,9 +1,24 @@
-console.log("Action called this file correctly!");
+const sourceUrl =
+  "https://cdn.jsdelivr.net/npm/name-suggestion-index@latest/dist/wikidata/wikidata.min.json";
 
-const sourceUrl = "https://cdn.jsdelivr.net/npm/name-suggestion-index@latest/dist/wikidata/wikidata.min.json";
 type LogoSources = Record<string, string>;
-type NSIEntry = { logos?: LogoSources; };
-type NSIData = Record<string, NSIEntry>;
+
+type NSIEntry = {
+  logos?: LogoSources;
+};
+
+type WikidataEntries = Record<string, NSIEntry>;
+
+type NSIData = {
+  _meta: {
+    version: string;
+    generated: string;
+    url: string;
+    hash: string;
+  };
+  wikidata: WikidataEntries;
+};
+
 type ExtractedLogos = Record<string, LogoSources>;
 
 function formatBytes(bytes: number): string {
@@ -37,13 +52,15 @@ if (!response.ok) {
 const buffer = await response.arrayBuffer();
 
 console.log(`\nSource file size: ${formatBytes(buffer.byteLength)}`);
-
 console.log("\nParsing JSON...");
 
 const text = new TextDecoder().decode(buffer);
 const data = JSON.parse(text) as NSIData;
 
-const qids = Object.keys(data);
+console.log(`NSI version: ${data._meta.version}`);
+console.log(`Generated: ${data._meta.generated}`);
+
+const qids = Object.keys(data.wikidata);
 const logos: ExtractedLogos = {};
 
 let logoUrlCount = 0;
@@ -51,7 +68,7 @@ let logoUrlCount = 0;
 console.log(`Total Q-ID entries: ${qids.length.toLocaleString()}`);
 console.log("\nExtracting logo URLs...");
 
-for (const [qid, entry] of Object.entries(data)) {
+for (const [qid, entry] of Object.entries(data.wikidata)) {
   if (!entry.logos || Object.keys(entry.logos).length === 0) {
     continue;
   }
