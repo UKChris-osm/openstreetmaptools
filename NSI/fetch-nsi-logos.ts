@@ -79,9 +79,9 @@ for (const [qid, entry] of Object.entries(data.wikidata)) {
 
 const output = `${JSON.stringify(logos, null, 2)}\n`;
 
-console.log("\nWriting logos.json...");
+console.log("\nWriting nsi-logos.json...");
 
-await Bun.write("logos.json", output);
+await Bun.write("nsi-logos.json", output);
 
 const outputSize = new TextEncoder().encode(output).byteLength;
 
@@ -90,4 +90,4 @@ console.log(`Q-ID entries processed: ${qids.length.toLocaleString()}`);
 console.log(`Q-IDs with logos: ${Object.keys(logos).length.toLocaleString()}`);
 console.log(`Total logo URLs: ${logoUrlCount.toLocaleString()}`);
 console.log(`Source file size: ${formatBytes(buffer.byteLength)}`);
-console.log(`logos.json size: ${formatBytes(outputSize)}`);
+console.log(`nsi-logos.json size: ${formatBytes(outputSize)}`);
