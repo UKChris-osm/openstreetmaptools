@@ -31,7 +31,7 @@ jobs:
       - name: Commit changes
         working-directory: NSI
         run: |
-          if git diff --quiet -- logos.json; then
+          if git diff --quiet -- /NSI/nsi-logos.json; then
             echo "No logo changes detected"
             exit 0
           fi
@@ -39,6 +39,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git add logos.json
+          git add /NSI/nsi-logos.json
           git commit -m "Update NSI logo URLs"
           git push
