@@ -26,7 +26,7 @@ jobs:
 
       - name: Fetch logo URLs
         working-directory: NSI
-        run: bun run fetch-nsi-logos.ts
+        run: bun fetch-nsi-logos.ts
 
       - name: Commit changes
         working-directory: NSI
