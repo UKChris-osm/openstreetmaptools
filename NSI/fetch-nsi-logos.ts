@@ -1,13 +1,8 @@
-const sourceUrl =
-  "https://cdn.jsdelivr.net/npm/name-suggestion-index@latest/dist/wikidata/wikidata.min.json";
+const sourceUrl = "https://cdn.jsdelivr.net/npm/name-suggestion-index@latest/dist/wikidata/wikidata.min.json";
 
-type LogoSources = Record<string, string>;
-
-type NSIEntry = {
-  logos?: LogoSources;
-};
-
+type LogoSources     = Record<string, string>;
 type WikidataEntries = Record<string, NSIEntry>;
+type NSIEntry = { logos?: LogoSources; };
 
 type NSIData = {
   _meta: {
@@ -44,9 +39,7 @@ console.log(sourceUrl);
 const response = await fetch(sourceUrl);
 
 if (!response.ok) {
-  throw new Error(
-    `Failed to fetch NSI Wikidata data: ${response.status} ${response.statusText}`,
-  );
+  throw new Error(`Failed to fetch NSI Wikidata data: ${response.status} ${response.statusText}`,);
 }
 
 const buffer = await response.arrayBuffer();
