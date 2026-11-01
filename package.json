@@ -1,0 +1,21 @@
+{
+  "name": "OpenStreetMap Tool",
+  "version": "0.5.0",
+  "description": "Tools for helping to improve OpenStreetMap.",
+  "private": false,
+  "type": "module",
+  "packageManager": "bun@1.4.4",
+  "scripts": {
+    "check:types": "bun check"
+  },
+  "contributors": [
+    "UKChris-osm",
+    "haignet.co.uk"
+  ],
+  "devDependencies": {
+    "@types/bun": "1.4.4"
+  },
+  "engines": {
+    "bun": "1.4.4"
+  }
+}
