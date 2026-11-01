@@ -1,4 +1,4 @@
-name: Fetch NSI logo URLs
+name: 2 - Fetch NSI logo URLs
 
 on:
   workflow_dispatch:
