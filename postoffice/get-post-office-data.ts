@@ -67,9 +67,20 @@ async function main() {
   const workbookUrl = await findLatestWorkbook();
   console.log("Ready to download:", workbookUrl);
 
-  // Download the workbook.
-  const workbookPath = await downloadWorkbook(workbookUrl);
-  console.log(`Workbook saved to: ${workbookPath}`);
+  // Create a unique temporary directory.
+  const tempDir = await createTempDirectory("postoffice");
+
+  try {
+    // Download the workbook.
+    const workbookPath = await downloadWorkbook(workbookUrl, tempDir);
+    console.log(`Workbook saved to: ${workbookPath}`);
+    
+    // We'll process the workbook here.
+  } finally {
+    // Remove the temporary directory and everything inside it.
+    await removeTempDirectory(tempDir);
+    console.log("Temporary files cleaned up.");
+  }
 }
 
 main().catch((error) => {
