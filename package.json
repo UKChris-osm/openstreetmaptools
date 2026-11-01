@@ -6,7 +6,8 @@
   "type": "module",
   "packageManager": "bun@1.4.4",
   "scripts": {
-    "check:types": "bun check"
+    "check:types": "bun check",
+    "osm:postoffice": "bun run get-post-office-data.ts"
   },
   "contributors": [
     "UKChris-osm",
