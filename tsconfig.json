@@ -9,6 +9,6 @@
     "types": ["bun"]
   },
   "include": [
-    "/*.ts"
+    "*.ts"
   ]
 }
