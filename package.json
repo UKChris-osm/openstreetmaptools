@@ -7,7 +7,7 @@
   "packageManager": "bun@1.4.4",
   "scripts": {
     "check:types": "bun check",
-    "osm:nsi": "bun run fetch-nsi-logos.ts",
+    "osm:nsi": "bun run NSI/fetch-nsi-logos.ts",
     "osm:postoffice": "bun run postoffice/get-post-office-data.ts"
   },
   "contributors": [
