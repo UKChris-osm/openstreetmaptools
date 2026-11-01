@@ -23,7 +23,7 @@ jobs:
 
       - name: Fetch NSI logo URLs
         working-directory: NSI
-        run: bun fetch-nsi-logos.ts
+        run: bun osm:nsi
 
       - name: Copy logo URLs for GitHub Pages
         run: |
