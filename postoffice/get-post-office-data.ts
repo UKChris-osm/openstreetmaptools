@@ -1,5 +1,6 @@
 import { join } from "node:path";
 import { createTempDirectory, removeTempDirectory } from "../scripts/temp-files";
+import { queryPostOfficeCount } from "../scripts/overpass-query";
 
 console.log("Let's get some Post Office Branches!");
 
@@ -81,6 +82,10 @@ async function main() {
     await removeTempDirectory(tempDir);
     console.log("Temporary files cleaned up.");
   }
+
+  // Find the number of post offices currently mapped in OSM.
+    const osmCounts = await queryPostOfficeCount();
+    console.log(`OSM currently contains ${osmCounts.total} post office objects.`);
 }
 
 main().catch((error) => {
