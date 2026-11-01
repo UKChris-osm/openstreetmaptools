@@ -1,5 +1,0 @@
-blank_issues_enabled: true
-contact_links:
-  - name: There is an issue with the iD Editor
-    url: https://github.com/openstreetmap/iD/issues
-    about: Please direct any issues with the iD Editor to the iD team.
