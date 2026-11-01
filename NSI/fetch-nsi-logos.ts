@@ -1,3 +1,5 @@
+export {}
+
 const sourceUrl = "https://cdn.jsdelivr.net/npm/name-suggestion-index@latest/dist/wikidata/wikidata.min.json";
 
 type LogoSources     = Record<string, string>;
