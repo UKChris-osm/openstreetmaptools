@@ -42,9 +42,33 @@ async function findLatestWorkbook(): Promise<string> {
   throw new Error("No Excel workbook link found on the Post Office webpage.");
 }
 
+async function downloadWorkbook(url: string): Promise<string> {
+  console.log("Downloading Post Office workbook...");
+
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new Error('Failed to download workbook: HTTP ${response.status}',);
+  }
+
+  const workbook = await response.arrayBuffer();
+  const filePath = "/tmp/post-office-branches.xlsx";
+
+  await Bun.write(filePath, workbook);
+
+  console.log('Downloaded workbook: ${(workbook.byteLength / 1024 / 1024).toFixed(2)} MB',);
+
+  return filePath;
+}
+
 async function main() {
+  // Find the workbook URL.
   const workbookUrl = await findLatestWorkbook();
   console.log("Ready to download:", workbookUrl);
+
+  // Download the workbook.
+  const workbookPath = await downloadWorkbook(workbookUrl);
+  console.log(`Workbook saved to: ${workbookPath}`);
 }
 
 main().catch((error) => {
