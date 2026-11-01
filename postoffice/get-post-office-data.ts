@@ -1,4 +1,5 @@
-import { createTempDirectory } from "../scripts/temp-files";
+import { join } from "node:path";
+import { createTempDirectory, removeTempDirectory } from "../scripts/temp-files";
 
 console.log("Let's get some Post Office Branches!");
 
@@ -42,7 +43,7 @@ async function findLatestWorkbook(): Promise<string> {
   throw new Error("No Excel workbook link found on the Post Office webpage.");
 }
 
-async function downloadWorkbook(url: string): Promise<string> {
+async function downloadWorkbook(url: string, tempDir: string): Promise<string> {
   console.log("Downloading Post Office workbook...");
 
   const response = await fetch(url);
@@ -52,7 +53,7 @@ async function downloadWorkbook(url: string): Promise<string> {
   }
 
   const workbook = await response.arrayBuffer();
-  const filePath = "/tmp/post-office-branches.xlsx";
+  const filePath = join(tempDir, "post-office-branches.xlsx");
 
   await Bun.write(filePath, workbook);
 
