@@ -1,4 +1,4 @@
-name: Deploy Web Site to GitHub Pages
+name: 1 - Deploy Web Site to GitHub Pages
 on:
   push:
   workflow_dispatch: 
