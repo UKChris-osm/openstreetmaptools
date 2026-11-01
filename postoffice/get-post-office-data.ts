@@ -48,7 +48,7 @@ async function downloadWorkbook(url: string): Promise<string> {
   const response = await fetch(url);
 
   if (!response.ok) {
-    throw new Error('Failed to download workbook: HTTP ${response.status}',);
+    throw new Error(`Failed to download workbook: HTTP ${response.status}`,);
   }
 
   const workbook = await response.arrayBuffer();
@@ -56,7 +56,7 @@ async function downloadWorkbook(url: string): Promise<string> {
 
   await Bun.write(filePath, workbook);
 
-  console.log('Downloaded workbook: ${(workbook.byteLength / 1024 / 1024).toFixed(2)} MB',);
+  console.log(`Downloaded workbook: ${(workbook.byteLength / 1024 / 1024).toFixed(2)} MB`,);
 
   return filePath;
 }
