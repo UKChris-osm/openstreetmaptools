@@ -1,23 +1,17 @@
-
 // Query Overpass for OSM post office objects within the UK boundary.
 //
-// Run directly with:
-//   bun run scripts/overpass-query.ts
+// Run directly through the Post Office script:
+//   bun run osm:postoffice
 
-const OVERPASS_API_URL = "https://api.overpass.ch/v1";
+import { queryOverpass } from "./overpass/client";
+
+import type { OverpassResponse } from "./overpass/types";
+
 const UK_RELATION_ID = 62149;
 
 interface OverpassCountElement {
   type: "count";
   tags?: Record<string, string>;
-}
-
-interface OverpassResponse {
-  elements?: OverpassCountElement[];
-  remark?: string;
-  osm3s?: {
-    timestamp_osm_base?: string;
-  };
 }
 
 export interface PostOfficeObjectCounts {
@@ -39,53 +33,17 @@ out count;
 `;
 
 export async function queryPostOfficeCount(): Promise<PostOfficeObjectCounts> {
-  const apiKey = process.env.OVERPASS_CH_KEY;
+  console.log("Querying Overpass for UK post offices...");
 
-  if (!apiKey) {
-    throw new Error("Missing OVERPASS_CH_KEY environment variable.");
-  }
+  const result = await queryOverpass(QUERY);
 
-  const endpoint = `${OVERPASS_API_URL}/${apiKey}/interpreter`;
+  const data = result.data as OverpassResponse;
 
-  console.log("Querying overpass.ch for UK post offices...");
-
-  const response = await fetch(endpoint, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      "User-Agent": "OpenStreetMap Post Office Data Tool",
-    },
-    body: new URLSearchParams({ data: QUERY }),
-    signal: AbortSignal.timeout(75_000),
-  });
-
-  if (!response.ok) {
-    const details = await response.text();
-
-    throw new Error(
-      `Overpass request failed: HTTP ${response.status} ${response.statusText}\n${details.slice(0, 500)}`,
-    );
-  }
-
-  const data = (await response.json()) as OverpassResponse;
-
-  if (data.remark) {
-    throw new Error(`Overpass query error: ${data.remark}`);
-  }
-
-  if (data.osm3s?.timestamp_osm_base) {
-    console.log(
-      `OSM database timestamp: ${data.osm3s.timestamp_osm_base}`,
-    );
-  }
-
-  const countElement = data.elements?.find(
-    (element) => element.type === "count",
-  );
+  const countElement = data.elements?.find((element) => element.type === "count",) as OverpassCountElement | undefined;
 
   const tags = countElement?.tags;
 
-  if (!tags?.total) {
+  if (tags?.total === undefined) {
     throw new Error("Overpass returned no count data for post offices.");
   }
 
@@ -100,22 +58,7 @@ export async function queryPostOfficeCount(): Promise<PostOfficeObjectCounts> {
     throw new Error("Overpass returned invalid count values.");
   }
 
-  return counts;
-}
+  console.log(`OSM currently contains ${counts.total.toLocaleString()} post office objects.`,);
 
-// Only run automatically when this file is executed directly.
-if (import.meta.main) {
-  queryPostOfficeCount()
-    .then((counts) => {
-      console.log(
-        `Found ${counts.total.toLocaleString()} OSM post office objects:`,
-      );
-      console.log(`  Nodes:     ${counts.nodes.toLocaleString()}`);
-      console.log(`  Ways:      ${counts.ways.toLocaleString()}`);
-      console.log(`  Relations: ${counts.relations.toLocaleString()}`);
-    })
-    .catch((error: unknown) => {
-      console.error("Overpass query failed:", error);
-      process.exit(1);
-    });
+  return counts;
 }
