@@ -1,9 +1,10 @@
+
 // Query Overpass for OSM post office objects within the UK boundary.
 //
 // Run directly with:
 //   bun run scripts/overpass-query.ts
 
-const OVERPASS_URL = "https://overpass-api.de/api/interpreter";
+const OVERPASS_API_URL = "https://api.overpass.ch/v1";
 const UK_RELATION_ID = 62149;
 
 interface OverpassCountElement {
@@ -13,6 +14,10 @@ interface OverpassCountElement {
 
 interface OverpassResponse {
   elements?: OverpassCountElement[];
+  remark?: string;
+  osm3s?: {
+    timestamp_osm_base?: string;
+  };
 }
 
 export interface PostOfficeObjectCounts {
@@ -23,7 +28,7 @@ export interface PostOfficeObjectCounts {
 }
 
 const QUERY = `
-[out:json][timeout:180];
+[out:json][timeout:60];
 
 rel(${UK_RELATION_ID})->.uk;
 .uk map_to_area->.uk_area;
@@ -34,15 +39,24 @@ out count;
 `;
 
 export async function queryPostOfficeCount(): Promise<PostOfficeObjectCounts> {
-  console.log("Querying Overpass for UK post offices...");
+  const apiKey = process.env.OVERPASS_CH_KEY;
 
-  const response = await fetch(OVERPASS_URL, {
+  if (!apiKey) {
+    throw new Error("Missing OVERPASS_CH_KEY environment variable.");
+  }
+
+  const endpoint = `${OVERPASS_API_URL}/${apiKey}/interpreter`;
+
+  console.log("Querying overpass.ch for UK post offices...");
+
+  const response = await fetch(endpoint, {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
       "User-Agent": "OpenStreetMap Post Office Data Tool",
     },
     body: new URLSearchParams({ data: QUERY }),
+    signal: AbortSignal.timeout(75_000),
   });
 
   if (!response.ok) {
@@ -54,6 +68,17 @@ export async function queryPostOfficeCount(): Promise<PostOfficeObjectCounts> {
   }
 
   const data = (await response.json()) as OverpassResponse;
+
+  if (data.remark) {
+    throw new Error(`Overpass query error: ${data.remark}`);
+  }
+
+  if (data.osm3s?.timestamp_osm_base) {
+    console.log(
+      `OSM database timestamp: ${data.osm3s.timestamp_osm_base}`,
+    );
+  }
+
   const countElement = data.elements?.find(
     (element) => element.type === "count",
   );
