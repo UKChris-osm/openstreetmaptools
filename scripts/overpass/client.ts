@@ -43,7 +43,11 @@ function getRetryDelay(value: string | null): number | null {
   return Math.max(0, Math.ceil((date - Date.now()) / 1000));
 }
 
-async function queryServer(server: OverpassServer, query: string,): Promise<OverpassQueryResult> {
+
+async function queryServer(
+  server: OverpassServer,
+  query: string,
+): Promise<OverpassQueryResult> {
   const headers: Record<string, string> = {
     "Content-Type": "application/x-www-form-urlencoded",
     "User-Agent": "OpenStreetMap Data Tools",
@@ -56,7 +60,9 @@ async function queryServer(server: OverpassServer, query: string,): Promise<Over
   const started = performance.now();
 
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
-    console.log(`Submitting query to ${server.name} (attempt ${attempt}/${MAX_ATTEMPTS})...`,);
+    console.log(
+      `Submitting query to ${server.name} (attempt ${attempt}/${MAX_ATTEMPTS})...`,
+    );
 
     let response: Response;
 
@@ -65,13 +71,15 @@ async function queryServer(server: OverpassServer, query: string,): Promise<Over
         method: "POST",
         headers,
         body: new URLSearchParams({ data: query }),
-        signal: AbortSignal.timeout((server.timeoutSeconds + 15) * 1000,),
+        signal: AbortSignal.timeout(
+          (server.timeoutSeconds + 15) * 1000,
+        ),
       });
     } catch (error) {
       const message =
         error instanceof Error ? error.message : String(error);
 
-      throw new OverpassHttpError(response.status, `${server.name} returned HTTP ${response.status} ${response.statusText}\n${details.slice(0, 1000)}`,);
+      throw new Error(`${server.name} request failed: ${message}`);
     }
 
     if (!response.ok) {
@@ -79,7 +87,9 @@ async function queryServer(server: OverpassServer, query: string,): Promise<Over
 
       if (RETRYABLE_STATUSES.includes(response.status)) {
         if (attempt < MAX_ATTEMPTS) {
-          const retryAfter = getRetryDelay(response.headers.get("Retry-After"),);
+          const retryAfter = getRetryDelay(
+            response.headers.get("Retry-After"),
+          );
 
           const delay = retryAfter ?? INITIAL_RETRY_DELAY * attempt;
 
@@ -98,7 +108,8 @@ async function queryServer(server: OverpassServer, query: string,): Promise<Over
         }
       }
 
-      throw new Error(
+      throw new OverpassHttpError(
+        response.status,
         `${server.name} returned HTTP ${response.status} ${response.statusText}\n${details.slice(0, 1000)}`,
       );
     }
