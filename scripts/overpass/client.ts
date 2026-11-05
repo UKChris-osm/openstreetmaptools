@@ -9,6 +9,16 @@ const MAX_ATTEMPTS = 2;
 const INITIAL_RETRY_DELAY = 5;
 const MAX_RETRY_AFTER = 15;
 
+class OverpassHttpError extends Error {
+  constructor(
+    public readonly status: number,
+    message: string,
+  ) {
+    super(message);
+    this.name = "OverpassHttpError";
+  }
+}
+
 function sleep(seconds: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, seconds * 1000));
 }
@@ -61,7 +71,7 @@ async function queryServer(server: OverpassServer, query: string,): Promise<Over
       const message =
         error instanceof Error ? error.message : String(error);
 
-      throw new Error(`${server.name} request failed: ${message}`);
+      throw new OverpassHttpError(response.status, `${server.name} returned HTTP ${response.status} ${response.statusText}\n${details.slice(0, 1000)}`,);
     }
 
     if (!response.ok) {
@@ -141,11 +151,16 @@ export async function queryOverpass(query: string,): Promise<OverpassQueryResult
 
     try {
       return await queryServer(server, query);
-    } catch (error) {
+        } catch (error) {
       const message =
         error instanceof Error ? error.message : String(error);
 
       console.error(`Server failed: ${message}`);
+
+      if (error instanceof OverpassHttpError && error.status === 400) {
+        throw error;
+      }
+
       failures.push(message);
     }
   }
