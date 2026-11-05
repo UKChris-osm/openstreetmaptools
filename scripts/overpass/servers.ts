@@ -9,7 +9,6 @@ export const OVERPASS_SERVERS: OverpassServer[] = [
           name: "overpass.ch",
           interpreterUrl: `https://api.overpass.ch/v1/${overpassChKey}/interpreter`,
           healthUrl: "https://api.overpass.ch/healthz",
-          referer: "https://openstreetmap.haignet.co.uk/",
           timeoutSeconds: 60,
         },
       ]
