@@ -85,7 +85,8 @@ async function main() {
 
   // Find the number of post offices currently mapped in OSM.
     const osmCounts = await queryPostOfficeCount();
-    console.log(`OSM currently contains ${osmCounts.total} post office objects.`);
+    colsole.log(`Didn't quite catch that 🤔 Let's tell you again 😁`);
+    console.log(`OSM currently contains ${osmCounts.toLocaleString()} post office objects.`);
 }
 
 main().catch((error) => {
