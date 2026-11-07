@@ -10,6 +10,12 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
+        with:
+          sparse-checkout: |
+            .
+            scripts
+            postoffice
+          sparse-checkout-cone-mode: true
 
       - name: Set up Bun
         uses: oven-sh/setup-bun@v2
