@@ -8,7 +8,7 @@
   "scripts": {
     "check": "bun run --parallel check:*",
     "check:types": "bun check",
-    "check:lint": "bun lint",
+    "check:lint": "bun lint --no-script",
     "osm:nsi": "bun run NSI/fetch-nsi-logos.ts",
     "osm:postoffice": "bun run postoffice/get-post-office-data.ts"
   },
