@@ -1,7 +1,6 @@
 name: 1.2 - Run Lint Check
 
 on:
-  push:
   workflow_dispatch:
 
 jobs:
