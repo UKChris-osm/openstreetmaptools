@@ -1,7 +1,6 @@
 name: 1 - Run TypeScript Check
 
 on:
-  push:
   workflow_dispatch:
 
 jobs:
