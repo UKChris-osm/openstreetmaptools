@@ -5,13 +5,6 @@
   "private": false,
   "type": "module",
   "packageManager": "bun@1.4.4",
-  "scripts": {
-    "check": "bun run --parallel check:*",
-    "//check:lint": "bun lint",
-    "check:types": "bun check",
-    "osm:nsi": "bun run NSI/fetch-nsi-logos.ts",
-    "osm:postoffice": "bun run postoffice/get-post-office-data.ts"
-  },
   "contributors": [
     "UKChris-osm",
     "haignet.co.uk"
@@ -21,5 +14,16 @@
   },
   "engines": {
     "bun": "1.4.4"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/UKChris-osm/openstreetmaptools.git"
+  },
+  "scripts": {
+    "check": "bun run --parallel check:*",
+    "//check:lint": "bun lint",
+    "check:types": "bun check",
+    "osm:nsi": "bun run NSI/fetch-nsi-logos.ts",
+    "osm:postoffice": "bun run postoffice/get-post-office-data.ts"
   }
 }
