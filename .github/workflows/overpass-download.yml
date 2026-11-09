@@ -19,3 +19,5 @@ jobs:
 
       - name: Bun Check
         run: bun run osm:overpass-download
+        env:
+          OVERPASS_CH_KEY: ${{ secrets.OVERPASS_CH_KEY }}
