@@ -24,6 +24,7 @@
     "//check:lint": "bun lint",
     "check:types": "bun check",
     "osm:nsi": "bun run NSI/fetch-nsi-logos.ts",
-    "osm:postoffice": "bun run postoffice/get-post-office-data.ts"
+    "osm:postoffice": "bun run postoffice/get-post-office-data.ts",
+    "osm:overpass-download": "bun run scripts/test-overpass-download.ts"
   }
 }
