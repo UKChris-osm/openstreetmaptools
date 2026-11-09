@@ -49,4 +49,4 @@ if (result.timestampOsmBase) {
   console.log(`OSM timestamp: ${result.timestampOsmBase}`);
 }
 
-console.log("=".repeat(20));
+console.log("========================================");
