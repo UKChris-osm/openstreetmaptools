@@ -36,6 +36,7 @@ export interface OverpassQueryResult {
   data: OverpassResponse;
   server: string;
   durationMs: number;
+  responseBytes: number;
   timestampOsmBase?: string;
 }
 
