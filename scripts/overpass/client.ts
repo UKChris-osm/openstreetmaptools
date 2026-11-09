@@ -1,7 +1,12 @@
+
 import { OVERPASS_SERVERS } from "./servers";
 import { checkServerHealth } from "./health";
 
-import type { OverpassQueryResult, OverpassResponse, OverpassServer } from "./types";
+import type {
+  OverpassQueryResult,
+  OverpassResponse,
+  OverpassServer,
+} from "./types";
 
 const RETRYABLE_STATUSES = [429, 502, 503, 504];
 
@@ -42,7 +47,6 @@ function getRetryDelay(value: string | null): number | null {
 
   return Math.max(0, Math.ceil((date - Date.now()) / 1000));
 }
-
 
 async function queryServer(
   server: OverpassServer,
@@ -115,9 +119,16 @@ async function queryServer(
     }
 
     let data: OverpassResponse;
+    let responseBytes: number;
 
     try {
-      data = (await response.json()) as OverpassResponse;
+      const buffer = await response.arrayBuffer();
+
+      responseBytes = buffer.byteLength;
+
+      const responseText = new TextDecoder().decode(buffer);
+
+      data = JSON.parse(responseText) as OverpassResponse;
     } catch {
       throw new Error(`${server.name} returned invalid JSON.`);
     }
@@ -129,8 +140,11 @@ async function queryServer(
     const durationMs = Math.round(performance.now() - started);
     const timestampOsmBase = data.osm3s?.timestamp_osm_base;
 
+    const responseMiB = responseBytes / (1024 * 1024);
+
     console.log(`Query successful using ${server.name}.`);
     console.log(`Query duration: ${(durationMs / 1000).toFixed(2)} seconds`);
+    console.log(`Response size: ${responseMiB.toFixed(2)} MiB`);
 
     if (timestampOsmBase) {
       console.log(`OSM database timestamp: ${timestampOsmBase}`);
@@ -140,6 +154,7 @@ async function queryServer(
       data,
       server: server.name,
       durationMs,
+      responseBytes,
       timestampOsmBase,
     };
   }
@@ -147,7 +162,9 @@ async function queryServer(
   throw new Error(`${server.name} exhausted its retry attempts.`);
 }
 
-export async function queryOverpass(query: string,): Promise<OverpassQueryResult> {
+export async function queryOverpass(
+  query: string,
+): Promise<OverpassQueryResult> {
   if (!query.trim()) {
     throw new Error("An Overpass query must be supplied.");
   }
@@ -162,7 +179,7 @@ export async function queryOverpass(query: string,): Promise<OverpassQueryResult
 
     try {
       return await queryServer(server, query);
-        } catch (error) {
+    } catch (error) {
       const message =
         error instanceof Error ? error.message : String(error);
 
@@ -176,5 +193,7 @@ export async function queryOverpass(query: string,): Promise<OverpassQueryResult
     }
   }
 
-  throw new Error(`All Overpass servers failed:\n${failures.join("\n\n")}`,);
+  throw new Error(
+    `All Overpass servers failed:\n${failures.join("\n\n")}`,
+  );
 }
