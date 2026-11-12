@@ -21,7 +21,7 @@
   },
   "scripts": {
     "check": "bun run --parallel check:*",
-    "//check:lint": "bun lint",
+    "check:lint": "bun lint",
     "check:types": "bun check",
     "osm:nsi": "bun run NSI/fetch-nsi-logos.ts",
     "osm:postoffice": "bun run postoffice/get-post-office-data.ts",
